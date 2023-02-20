@@ -5,6 +5,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:saif/screens/menu_screen.dart';
 
 import '../componets/roundbutton.dart';
@@ -20,6 +21,7 @@ class NewOrderListScreen extends StatefulWidget {
 }
 
 class _NewOrderListScreenState extends State<NewOrderListScreen> {
+  String? usid = GetStorage().read('USID');
   bool loading = false;
   var quantity = 0.0;
   var rate = 0.0;
@@ -171,6 +173,7 @@ class _NewOrderListScreenState extends State<NewOrderListScreen> {
       print('form is validate');
 
       Map<String, dynamic> bodyData = {
+        "USID": usid,
         "FKCUST": _pkcodeForGetCustomr.toString(),
         "FKMAST": _pkcodeforProduct.toString(),
         "QTY": quantityController.text.trim(),
@@ -226,6 +229,7 @@ class _NewOrderListScreenState extends State<NewOrderListScreen> {
 
   @override
   void initState() {
+    print(usid);
     _fetchCustomerItems();
     _fetchGetCustomersApi();
     super.initState();

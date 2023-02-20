@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:saif/model/pending_order_model.dart';
+import 'package:saif/services/service.dart';
 
 import '../componets/text_widget.dart';
 
+// ignore: must_be_immutable
 class OrderListScreen extends StatelessWidget {
-  const OrderListScreen({super.key});
-
+  OrderListScreen({super.key});
+  String? usid = GetStorage().read("USID");
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -13,29 +17,56 @@ class OrderListScreen extends StatelessWidget {
         centerTitle: true,
         elevation: 0,
       ),
-      body: Container(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            children: [
-              // SizedBox(height: 30),
-              orderListCard(
-                context,
-                "Customer Name",
-                "Qty",
-                Theme.of(context).colorScheme.primary,
+      body: FutureBuilder<List<PendingOrderModel>>(
+        future: ApiService.getPendingOrders('ORDER/CustPendigOrdr?usid=$usid'),
+        // initialData: InitialData,
+        builder: (BuildContext context,
+            AsyncSnapshot<List<PendingOrderModel>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator.adaptive(),
+            );
+          }
+          if (snapshot.hasError) {
+            print(snapshot.error);
+            return Center(
+              child: Text('An error occurred: ${snapshot.error}'),
+            );
+          }
+          if (snapshot.hasData) {
+            final pendingOreders = snapshot.data;
+            print(usid);
+            print(pendingOreders);
+            return Container(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Column(
+                  children: [
+                    // SizedBox(height: 30),
+                    orderListCard(
+                      context,
+                      "Customer Name",
+                      "Qty",
+                      Theme.of(context).colorScheme.primary,
+                    ),
+                    Expanded(
+                        child: ListView.builder(
+                      itemCount: pendingOreders!.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return orderListCard(
+                            context,
+                            pendingOreders[index].cUSTNAME.toString(),
+                            pendingOreders[index].qTY.toString(),
+                            Theme.of(context).colorScheme.secondary);
+                      },
+                    ))
+                  ],
+                ),
               ),
-              Expanded(
-                  child: SingleChildScrollView(
-                      child: Column(
-                children: List.generate(20, (index) {
-                  return orderListCard(context, "Ali", "100",
-                      Theme.of(context).colorScheme.secondary);
-                }),
-              )))
-            ],
-          ),
-        ),
+            );
+          }
+          return Container();
+        },
       ),
     );
   }
@@ -56,11 +87,16 @@ class OrderListScreen extends StatelessWidget {
                 child: Center(
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: MyTextWidget(
-                      text: '$title',
-                      color: Theme.of(context).colorScheme.onTertiary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Text(
+                          "$title",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                        )),
                   ),
                 ),
               ),
@@ -73,11 +109,16 @@ class OrderListScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Center(
-                  child: MyTextWidget(
-                    text: '$Qty',
-                    color: Theme.of(context).colorScheme.onTertiary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Text(
+                        "$Qty",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      )),
                 ),
               ),
             ),

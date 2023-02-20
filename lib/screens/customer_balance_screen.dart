@@ -128,6 +128,7 @@ class _CustomerBAlanceScreenState extends State<CustomerBAlanceScreen> {
                         // maxLines: 1,
                         style: TextStyle(
                           fontSize: 16,
+                          fontWeight: FontWeight.w500,
                           color: Theme.of(context).colorScheme.onPrimary,
                         ),
                       ),
@@ -159,6 +160,7 @@ class _CustomerBAlanceScreenState extends State<CustomerBAlanceScreen> {
                       '$Qty',
                       style: TextStyle(
                         fontSize: 16,
+                        fontWeight: FontWeight.w500,
                         color: Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),

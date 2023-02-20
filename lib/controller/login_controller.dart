@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 import '../screens/menu_screen.dart';
 import '../services/service.dart';
@@ -29,6 +30,8 @@ class AppController extends GetxController {
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
         );
+        // Store the USID value in GetStorage
+        GetStorage().write('USID', data['USID']);
         Get.offAll(() => MenuScreen());
       } else {
         Fluttertoast.showToast(

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get_storage/get_storage.dart';
 
 import '../componets/dropdown_button.dart';
 import '../componets/roundbutton.dart';
@@ -18,6 +19,8 @@ class CustomerReceipts extends StatefulWidget {
 }
 
 class _CustomerReceiptsState extends State<CustomerReceipts> {
+  String? usid = GetStorage().read('USID');
+
   final formKey = GlobalKey<FormState>();
   final bankController = TextEditingController();
   final amountController = TextEditingController();
@@ -115,6 +118,7 @@ class _CustomerReceiptsState extends State<CustomerReceipts> {
       print('form is validate');
 
       Map<String, dynamic> bodyData = {
+        "USID": usid,
         "FKCUST": "$_pkCode",
         "PTYPE": "$_selectedCash",
         "CHQNO": "${bankController.text.trim()}",
@@ -321,6 +325,7 @@ class _CustomerReceiptsState extends State<CustomerReceipts> {
                         print(_pkCode);
                         print(_selectedCash);
                         print(amountController.text);
+                        print(usid);
                       },
                       title: 'Submit',
                     ),
