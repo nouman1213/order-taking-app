@@ -252,6 +252,10 @@ class _CustomerLedgerScreenState extends State<CustomerLedgerScreen> {
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         textColor: Theme.of(context).colorScheme.onPrimary,
                         onTap: () {
+                          print(_pkCode);
+                          print(startDateController.text);
+                          print(EndDateController.text);
+
                           if (formKey.currentState!.validate()) {
                             if (_customerValue == "Select Customer") {
                               Get.snackbar(
@@ -260,7 +264,11 @@ class _CustomerLedgerScreenState extends State<CustomerLedgerScreen> {
                                 snackPosition: SnackPosition.BOTTOM,
                               );
                             } else {
-                              Get.to(CustomeLedgerPreview());
+                              Get.to(CustomeLedgerPreview(
+                                fromDate: startDateController.text,
+                                ToDate: EndDateController.text,
+                                psctd: _pkCode,
+                              ));
                               _clearController();
                             }
                           }

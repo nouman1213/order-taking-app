@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 import '../model/customer-items_model.dart';
 import '../model/customer_balance_mode.dart';
+import '../model/customer_ledger_model.dart';
 import '../model/getcustomer_model.dart';
 import '../model/pending_order_model.dart';
 
@@ -104,6 +105,26 @@ class ApiService {
         final List<dynamic> jsonList = json.decode(response.body);
         return jsonList
             .map((json) => PendingOrderModel.fromJson(json))
+            .toList();
+      } else {
+        throw Exception("Failed to load data from API");
+      }
+    } catch (e) {
+      throw Exception("An error occurred: $e");
+    }
+  }
+
+  // customer ledger api
+  static Future<List<CustomerLegderModel>> getCustomerLedger(
+      String endpoint) async {
+    try {
+      final response = await http.get(Uri.parse("$baseUrl$endpoint"));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = json.decode(response.body);
+        print(jsonList);
+        return jsonList
+            .map((json) => CustomerLegderModel.fromJson(json))
             .toList();
       } else {
         throw Exception("Failed to load data from API");

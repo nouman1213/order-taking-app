@@ -4,11 +4,11 @@ import 'package:saif/componets/text_widget.dart';
 
 // ignore: must_be_immutable
 class MyCard extends StatelessWidget {
-   MyCard({super.key,required this.title,this.Qty,this.color,this.ontap});
-String? title; 
-String? Qty;
-Color? color;
-      Callback? ontap;
+  MyCard({super.key, required this.title, this.Qty, this.color, this.ontap});
+  String? title;
+  String? Qty;
+  Color? color;
+  Callback? ontap;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -44,10 +44,13 @@ Color? color;
                 padding: const EdgeInsets.all(8.0),
                 child: Align(
                   alignment: Alignment.bottomRight,
-                  child: MyTextWidget(
-                    text: '$Qty',
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: MyTextWidget(
+                      text: '$Qty',
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
