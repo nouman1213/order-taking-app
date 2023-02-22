@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
-import 'package:saif/componets/text_widget.dart';
 
 // ignore: must_be_immutable
 class MyCard extends StatelessWidget {
@@ -26,11 +25,11 @@ class MyCard extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Align(
                     alignment: Alignment.bottomLeft,
-                    child: MyTextWidget(
-                      text: '$title',
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    child: Text('$title',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontWeight: FontWeight.w600,
+                        )),
                   ),
                 ),
               ),
@@ -43,14 +42,14 @@ class MyCard extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Align(
-                  alignment: Alignment.bottomRight,
+                  alignment: Alignment.center,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    child: MyTextWidget(
-                      text: '$Qty',
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    child: Text('$Qty',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontWeight: FontWeight.w600,
+                        )),
                   ),
                 ),
               ),

@@ -3,8 +3,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:saif/model/pending_order_model.dart';
 import 'package:saif/services/service.dart';
 
-import '../componets/text_widget.dart';
-
 // ignore: must_be_immutable
 class OrderListScreen extends StatelessWidget {
   OrderListScreen({super.key});

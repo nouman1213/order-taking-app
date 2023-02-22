@@ -5,8 +5,8 @@ class CustomerLegderModel {
   dynamic oPBAL;
   String? dPFKMAST;
   String? vDT;
-  Null? rMKS;
-  Null? cHQNO;
+  Null rMKS;
+  Null cHQNO;
   String? sRNO;
   String? fKMAST;
   dynamic dEBIT;
