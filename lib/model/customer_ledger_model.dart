@@ -12,6 +12,7 @@ class CustomerLegderModel {
   dynamic dEBIT;
   dynamic cREDIT;
   dynamic bALDIFF;
+  String? vTYP;
 
   CustomerLegderModel(
       {this.iD,
@@ -26,7 +27,8 @@ class CustomerLegderModel {
       this.fKMAST,
       this.dEBIT,
       this.cREDIT,
-      this.bALDIFF});
+      this.bALDIFF,
+      this.vTYP});
 
   CustomerLegderModel.fromJson(Map<String, dynamic> json) {
     iD = json['ID'];
@@ -42,6 +44,7 @@ class CustomerLegderModel {
     dEBIT = json['DEBIT'];
     cREDIT = json['CREDIT'];
     bALDIFF = json['BALDIFF'];
+    vTYP = json['VTYP'];
   }
 
   Map<String, dynamic> toJson() {
@@ -59,6 +62,7 @@ class CustomerLegderModel {
     data['DEBIT'] = this.dEBIT;
     data['CREDIT'] = this.cREDIT;
     data['BALDIFF'] = this.bALDIFF;
+    data['VTYP'] = this.vTYP;
     return data;
   }
 }

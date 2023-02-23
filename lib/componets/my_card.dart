@@ -3,9 +3,18 @@ import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
 
 // ignore: must_be_immutable
 class MyCard extends StatelessWidget {
-  MyCard({super.key, required this.title, this.Qty, this.color, this.ontap});
+  MyCard(
+      {super.key,
+      required this.title,
+      this.debit,
+      this.credit,
+      this.color,
+      this.amount,
+      this.ontap});
   String? title;
-  String? Qty;
+  String? debit;
+  String? credit;
+  String? amount;
   Color? color;
   Callback? ontap;
   @override
@@ -21,15 +30,19 @@ class MyCard extends StatelessWidget {
               child: Card(
                 color: color,
                 elevation: 5,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Text('$title',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontWeight: FontWeight.w600,
-                        )),
+                child: SizedBox(
+                  height: 45,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text('$title',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontWeight: FontWeight.w600,
+                          )),
+                    ),
                   ),
                 ),
               ),
@@ -39,14 +52,63 @@ class MyCard extends StatelessWidget {
             child: Card(
               color: color,
               elevation: 5,
+              child: SizedBox(
+                height: 45,
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Text('$debit',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontWeight: FontWeight.w600,
+                          )),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Card(
+              color: color,
+              elevation: 5,
+              child: SizedBox(
+                height: 45,
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Text('$credit',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontWeight: FontWeight.w600,
+                          )),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // SizedBox(width: 20)
+          Expanded(
+            child: SizedBox(
+              height: 45,
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(4.0),
                 child: Align(
                   alignment: Alignment.center,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    child: Text('$Qty',
+                    child: Text('',
                         style: TextStyle(
+                          fontSize: 14,
                           color: Theme.of(context).colorScheme.onPrimary,
                           fontWeight: FontWeight.w600,
                         )),

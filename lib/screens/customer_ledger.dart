@@ -23,8 +23,10 @@ class _CustomerLedgerScreenState extends State<CustomerLedgerScreen> {
   String? _pkCode;
   bool isLoading = true;
   final dateFormat = DateFormat("dd-MMM-yyyy");
+
   final startDateController = TextEditingController();
   final EndDateController = TextEditingController();
+
   //get customer Api
   ///////////////////
   bool isItemDisabled(String s) {
@@ -205,9 +207,10 @@ class _CustomerLedgerScreenState extends State<CustomerLedgerScreen> {
                       ),
                       SizedBox(height: 20),
                       MyTextForm(
+                        dateMask: "##-???-####",
                         text: 'Start Date',
                         containerWidth: double.infinity,
-                        hintText: 'DD-MM-YYYY',
+                        hintText: 'DD-MMM-YYYY',
                         controller: startDateController,
                         validator: (text) {
                           if (text.toString().isEmpty) {
@@ -226,6 +229,7 @@ class _CustomerLedgerScreenState extends State<CustomerLedgerScreen> {
                       ),
                       SizedBox(height: 20),
                       MyTextForm(
+                        dateMask: "##-???-####",
                         text: 'End Date',
                         sufixIcon: IconButton(
                           icon: Icon(
@@ -237,7 +241,7 @@ class _CustomerLedgerScreenState extends State<CustomerLedgerScreen> {
                               _selectDate(context, EndDateController),
                         ),
                         containerWidth: double.infinity,
-                        hintText: 'DD-MM-YYYY',
+                        hintText: 'DD-MMM-YYYY',
                         controller: EndDateController,
                         validator: (text) {
                           if (text.toString().isEmpty) {

@@ -5,7 +5,6 @@ import 'package:saif/services/service.dart';
 import 'package:saif/theme/color_scheme.dart';
 
 import '../componets/my_card.dart';
-import '../componets/text_widget.dart';
 import '../model/customer_ledger_model.dart';
 
 // ignore: must_be_immutable
@@ -20,10 +19,6 @@ class CustomeLedgerPreview extends StatefulWidget {
 }
 
 class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
-  double totalAmount = 0;
-  String? formattedTotalAmount;
-
-  var openingBalance = 0.0;
   final dateFormat = DateFormat("dd-MMM-yyyy");
 
   @override
@@ -49,16 +44,28 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
             );
           }
           if (snapshot.hasData) {
+            String? formatBalance;
+
             final ledger = snapshot.data;
             print(ledger);
-            //calculate total amount
+
+            double sumDebit = 0.0;
+            double sumCredit = 0.0;
             for (int i = 0; i < ledger!.length; i++) {
-              var credit = ledger[i].cREDIT ?? 0;
-              var debit = ledger[i].dEBIT ?? 0;
-              totalAmount += (credit) + (debit);
-              formattedTotalAmount =
-                  NumberFormat("#,##0.##", "en_US").format(totalAmount);
+              sumDebit += (ledger[i].dEBIT ?? 0);
+              sumCredit += (ledger[i].cREDIT ?? 0);
             }
+            String formatDebit =
+                NumberFormat("#,##0.##", "en_US").format(sumDebit);
+            String formatCredit =
+                NumberFormat("#,##0.##", "en_US").format(sumCredit);
+            String formatOpeningBal =
+                NumberFormat("#,##0.##", "en_US").format(ledger[0].oPBAL ?? 0);
+
+            ///
+            double openingBalance = ledger[0].oPBAL ?? 0;
+
+            double balancevalue = openingBalance;
 
             return Padding(
               padding: const EdgeInsets.all(6.0),
@@ -66,7 +73,15 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(child: MyTextWidget(text: 'Customer Ledger Activity')),
+                  SizedBox(height: 10),
+
+                  Center(
+                    child: Text(
+                      '${ledger[0].nAME}',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                    ),
+                  ),
                   SizedBox(height: 10),
 
                   Row(
@@ -105,95 +120,97 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
 
                   SizedBox(height: 10),
                   HeadingCard(context, "Description", "Dabit", "Cedit",
-                      'Amount', Theme.of(context).colorScheme.primary),
+                      'Balance', Theme.of(context).colorScheme.primary),
                   SizedBox(height: 10),
                   // Divider(thickness: 1, color: Colors.grey),
+
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Expanded(
+                      Align(
+                        alignment: Alignment.centerRight,
                         child: Text(
-                          '${ledger[0].nAME}',
+                          'Openning Balance: $formatOpeningBal',
                           style: TextStyle(
                               fontSize: 13, fontWeight: FontWeight.w400),
                         ),
                       ),
-                      SizedBox(width: 5),
-                      Text(
-                        'Openning Balance: ${ledger[0].oPBAL.toInt()}',
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w400),
-                      ),
+                      SizedBox(width: 10),
                     ],
                   ),
+
                   SizedBox(height: 10),
 
                   Expanded(
-                    child: Container(
-                      // color: Colors.amber,
-                      child: ListView.builder(
-                        // shrinkWrap: true,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            // color: Colors.amber,
+                            child: ListView.builder(
+                              itemCount: ledger.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                //calculate debit and credit from openningBalance
+                                String debitvalue =
+                                    "${ledger[index].dEBIT ?? '00'}";
+                                String creditvalue =
+                                    "${ledger[index].cREDIT ?? '00'}";
 
-                        itemCount: ledger.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          // double totalDebit = 0;
-                          // double totalCredit = 0;
+                                int debit = int.parse(debitvalue.split(".")[0]);
+                                int credit =
+                                    int.parse(creditvalue.split(".")[0]);
+                                balancevalue += debit - credit;
+                                formatBalance =
+                                    NumberFormat("#,##0.##", "en_US")
+                                        .format(balancevalue);
+                                var formatdebit =
+                                    NumberFormat("#,##0.##", "en_US")
+                                        .format(debit);
+                                var formatcred =
+                                    NumberFormat("#,##0.##", "en_US")
+                                        .format(credit);
 
-                          // for (int i = 0; i < ledger.length; i++) {
-                          //   if (ledger[i].dEBIT != null) {
-                          //     totalDebit += ledger[i].dEBIT;
-                          //   }
-                          //   if (ledger[i].cREDIT != null) {
-                          //     totalCredit += ledger[i].cREDIT;
-                          //   }
-                          // }
-                          // double totalAmount = totalDebit - totalCredit;
-                          // print('xxx$totalAmount');
-                          //remove decimal
-                          String debitvalue = "${ledger[index].dEBIT ?? '00'}";
-                          String creditvalue =
-                              "${ledger[index].cREDIT ?? '00'}";
-
-                          int debit = int.parse(debitvalue.split(".")[0]);
-                          int credit = int.parse(creditvalue.split(".")[0]);
-
-                          double balancevalue = (ledger[index].oPBAL ?? 0) +
-                              (ledger[index].bALDIFF ?? 0);
-                          int balance = balancevalue.toInt();
-
-                          //date formate
-                          String? dateRange = ledger[index].vDT;
-                          String? fromDate = dateRange!.split(" ")[0];
-                          DateTime fromDateTime = DateTime.parse(fromDate);
-                          String formattedFromDate =
-                              "${fromDateTime.day}-${fromDateTime.month}-${fromDateTime.year}";
-                          return Container(
-                              decoration: BoxDecoration(
-                                  border: Border.symmetric(
-                                // vertical: BorderSide(),
-                                horizontal:
-                                    BorderSide(width: 1, color: Colors.grey),
-                              )),
-                              child: PreviewListCard(
-                                context,
-                                "$formattedFromDate",
-                                "${ledger[index].sRNO}",
-                                "$debit",
-                                "$credit",
-                                "$balance",
-                              )
-                              // "${ledger[index].dEBIT ?? '00'}",
-                              // "${ledger[index].cREDIT ?? '00'}",
-                              // "${(ledger[index].oPBAL ?? 0) + (ledger[index].bALDIFF ?? 0)}"),
-                              );
-                        },
-                      ),
+                                //date formate
+                                String? dateRange = ledger[index].vDT;
+                                String? fromDate = dateRange!.split(" ")[0];
+                                DateTime fromDateTime =
+                                    DateTime.parse(fromDate);
+                                String formattedFromDate =
+                                    "${fromDateTime.day}-${fromDateTime.month}-${fromDateTime.year}";
+                                return Container(
+                                    decoration: BoxDecoration(
+                                        border: Border.symmetric(
+                                      // vertical: BorderSide(),
+                                      horizontal: BorderSide(
+                                          width: 1, color: Colors.grey),
+                                    )),
+                                    child: PreviewListCard(
+                                      context,
+                                      "$formattedFromDate",
+                                      "${ledger[index].vTYP}",
+                                      "${ledger[index].sRNO}",
+                                      "$formatdebit",
+                                      "$formatcred",
+                                      "$formatBalance",
+                                    )
+                                    // "${ledger[index].dEBIT ?? '00'}",
+                                    // "${ledger[index].cREDIT ?? '00'}",
+                                    // "${(ledger[index].oPBAL ?? 0) + (ledger[index].bALDIFF ?? 0)}"),
+                                    );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   // Spacer(),
                   MyCard(
                     title: 'Closing Balance',
                     color: Theme.of(context).colorScheme.primary,
-                    Qty: '$formattedTotalAmount',
+                    debit: '$formatDebit',
+                    credit: '$formatCredit',
+                    // amount: "$formatBalance",
                   )
                 ],
               ),
@@ -205,8 +222,8 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
     );
   }
 
-  SizedBox PreviewListCard(context, String? date, String? name, String? dabit,
-      String? credit, String? balance,
+  SizedBox PreviewListCard(context, String? date, String? type, String? name,
+      String? dabit, String? credit, String? balance,
       {Callback? ontap}) {
     return SizedBox(
       width: double.infinity,
@@ -222,36 +239,55 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                   height: 40,
                   child: Padding(
                     padding: const EdgeInsets.all(4.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Align(
-                            alignment: Alignment.topLeft,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Text(
-                                '$date',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  // fontWeight: FontWeight.w600,
-                                  // color: Theme.of(context).colorScheme.onPrimary,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Text(
+                                    '$date',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      // fontWeight: FontWeight.w600,
+                                      // color: Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                  )),
+                              SizedBox(
+                                  width: MediaQuery.of(context).size.width *
+                                      0.050),
+                              Align(
+                                alignment: Alignment.topRight,
+                                child: Text(
+                                  '$type',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    // color: Theme.of(context).colorScheme.onPrimary,
+                                  ),
                                 ),
                               ),
-                            )),
-                        Align(
-                            alignment: Alignment.bottomLeft,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Text(
-                                '$name',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  // fontWeight: FontWeight.w600,
-                                  // color: Theme.of(context).colorScheme.onPrimary,
+                            ],
+                          ),
+                          Align(
+                              alignment: Alignment.bottomLeft,
+                              child: SingleChildScrollView(
+                                child: Text(
+                                  '$name',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    // fontWeight: FontWeight.w600,
+                                    // color: Theme.of(context).colorScheme.onPrimary,
+                                  ),
                                 ),
-                              ),
-                            )),
-                      ],
+                              )),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -317,7 +353,7 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
             ),
           ),
           Expanded(
-            flex: 2,
+            flex: 1,
             child: InkWell(
               onTap: ontap,
               child: Card(
@@ -327,7 +363,7 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Align(
-                        alignment: Alignment.center,
+                        alignment: Alignment.centerRight,
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Text(
@@ -364,20 +400,24 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
               child: Card(
                 color: color,
                 elevation: 5,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Text(
-                          '$name',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onPrimary,
+                child: SizedBox(
+                  height: 45,
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Align(
+                        alignment: Alignment.center,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Text(
+                            '$name',
+                            style: TextStyle(
+                              // fontSize: 1,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
                           ),
-                        ),
-                      )),
+                        )),
+                  ),
                 ),
               ),
             ),
@@ -389,20 +429,23 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
               child: Card(
                 color: color,
                 elevation: 5,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Text(
-                          '$dabit',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onPrimary,
+                child: SizedBox(
+                  height: 45,
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Align(
+                        alignment: Alignment.center,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Text(
+                            '$dabit',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
                           ),
-                        ),
-                      )),
+                        )),
+                  ),
                 ),
               ),
             ),
@@ -414,45 +457,51 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
               child: Card(
                 color: color,
                 elevation: 5,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Text(
-                          '$credit',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onPrimary,
+                child: SizedBox(
+                  height: 45,
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Align(
+                        alignment: Alignment.center,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Text(
+                            '$credit',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
                           ),
-                        ),
-                      )),
+                        )),
+                  ),
                 ),
               ),
             ),
           ),
           Expanded(
-            flex: 2,
+            flex: 1,
             child: InkWell(
               onTap: ontap,
               child: Card(
                 color: color,
                 elevation: 5,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Align(
-                      alignment: Alignment.center,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Text(
-                          '$balance',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onPrimary,
+                child: SizedBox(
+                  height: 45,
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Align(
+                        alignment: Alignment.center,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Text(
+                            '$balance',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
                           ),
-                        ),
-                      )),
+                        )),
+                  ),
                 ),
               ),
             ),
