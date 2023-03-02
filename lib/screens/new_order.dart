@@ -29,11 +29,25 @@ class _NewOrderListScreenState extends State<NewOrderListScreen> {
   final quantityController = TextEditingController();
   final rateController = TextEditingController();
   final amountController = TextEditingController();
+  final nameController = TextEditingController();
+  final mobileController = TextEditingController();
+  final areaController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   //get customer Api
   String? _customerName = "Select Customer";
-  String? _pkcodeForGetCustomr = "";
+  Set<String> _pkcodeForGetCustomr = Set<String>();
+  String _finalPkCodeForCustomerName = '';
 
+  //for show additional fields
+  bool get _showAdditionalFields {
+    return _pkcodeForGetCustomr.contains('20200458') ||
+        _pkcodeForGetCustomr.contains('20200463') ||
+        _pkcodeForGetCustomr.contains('20200464') ||
+        _pkcodeForGetCustomr.contains('20200465') ||
+        _pkcodeForGetCustomr.contains('20200466');
+  }
+
+//Get Customer Api
   List<String>? getCustomersList = [];
   List<String> pkCodesListGetCustomer = [];
 
@@ -142,10 +156,14 @@ class _NewOrderListScreenState extends State<NewOrderListScreen> {
     }
   }
 
+//dispose controller
   void dispose() {
     quantityController.dispose();
     rateController.dispose();
     amountController.dispose();
+    nameController.dispose();
+    mobileController.dispose();
+    areaController.dispose();
     super.dispose();
   }
 
@@ -174,11 +192,14 @@ class _NewOrderListScreenState extends State<NewOrderListScreen> {
 
       Map<String, dynamic> bodyData = {
         "USID": usid,
-        "FKCUST": _pkcodeForGetCustomr.toString(),
+        "FKCUST": _finalPkCodeForCustomerName.toString(),
         "FKMAST": _pkcodeforProduct.toString(),
         "QTY": quantityController.text.trim(),
         "RATE": rateController.text.trim(),
-        "AMOUNT": amountController.text.trim()
+        "AMOUNT": amountController.text.trim(),
+        "CNAME": nameController.text.trim(),
+        "MOB": mobileController.text.trim(),
+        "AREA": areaController.text.trim(),
       };
 
       final response =
@@ -310,12 +331,27 @@ class _NewOrderListScreenState extends State<NewOrderListScreen> {
                               // print(pkCodesListGetCustomer);
                               setState(() {
                                 _customerName = value;
-                                print("..CustomerName..$_customerName");
 
-                                _pkcodeForGetCustomr = pkCodesListGetCustomer[
-                                    getCustomersList!.indexOf(value!)];
+                                print("..CustomerName..$_customerName");
+                                //checks on specific value
+                                if (value is List<String>) {
+                                  _pkcodeForGetCustomr =
+                                      Set.from(value as Iterable);
+                                } else {
+                                  _pkcodeForGetCustomr.clear();
+                                  _pkcodeForGetCustomr.add(
+                                      pkCodesListGetCustomer[
+                                          getCustomersList!.indexOf(value!)]);
+                                }
+                                _finalPkCodeForCustomerName =
+                                    _pkcodeForGetCustomr.join(', ');
+
+                                // _pkcodeForGetCustomr = pkCodesListGetCustomer[
+                                //         getCustomersList!.indexOf(value!)]
+                                //     as Set<String>;
+
                                 print(
-                                    "..getCustomerpkcode..$_pkcodeForGetCustomr");
+                                    "..getCustomerpkcode..$_finalPkCodeForCustomerName");
                               });
                             },
                             validator: (value) {
@@ -381,7 +417,9 @@ class _NewOrderListScreenState extends State<NewOrderListScreen> {
 
                                 _pkcodeforProduct = pkCodesforProductList[
                                     customerProductList!.indexOf(value!)];
-                                print("..Produckpkcode..$_pkcodeforProduct");
+                                print("..Productpkcode..$_pkcodeforProduct");
+                                // print(
+                                //     "..ProductListCodesss..$customerProductList");
                               });
                             },
                             validator: (value) {
@@ -397,7 +435,64 @@ class _NewOrderListScreenState extends State<NewOrderListScreen> {
                               cursorColor: Colors.blue,
                             ),
                           ),
+                          // if (_showAdditionalFields)
+
                           SizedBox(height: 10),
+                          if (_showAdditionalFields)
+                            Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: MyTextForm(
+                                        textKeyboardType: TextInputType.number,
+                                        text: 'Customer Name',
+                                        containerWidth: double.infinity,
+                                        hintText: 'Enter Customer Name',
+                                        controller: nameController,
+                                        validator: (text) {
+                                          if (text.toString().isEmpty) {
+                                            return "Customer Name is required";
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                    SizedBox(width: 20),
+                                    Expanded(
+                                      child: MyTextForm(
+                                        textKeyboardType: TextInputType.number,
+                                        text: 'Mobile No',
+                                        containerWidth: double.infinity,
+                                        hintText: 'Enter Mobile No..',
+                                        controller: mobileController,
+                                        validator: (text) {
+                                          if (text.toString().isEmpty) {
+                                            return "Mobile No. is required";
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 10),
+                                MyTextForm(
+                                  enable: true,
+                                  textKeyboardType: TextInputType.number,
+                                  text: 'Area',
+                                  containerWidth: double.infinity,
+                                  hintText: 'Enter Area',
+                                  controller: areaController,
+                                  validator: (text) {
+                                    if (text.toString().isEmpty) {
+                                      return "Area is required";
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+
+                          // SizedBox(height: 10),
+
                           Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -466,6 +561,9 @@ class _NewOrderListScreenState extends State<NewOrderListScreen> {
                                 onTap: () {
                                   print(_pkcodeForGetCustomr);
                                   print(_pkcodeforProduct);
+                                  print(nameController.text);
+                                  print(mobileController.text);
+                                  print(areaController.text);
                                   moveToHome(context);
                                 },
                                 title: "Submit",

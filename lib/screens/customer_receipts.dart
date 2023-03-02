@@ -24,6 +24,7 @@ class _CustomerReceiptsState extends State<CustomerReceipts> {
   final formKey = GlobalKey<FormState>();
   final bankController = TextEditingController();
   final amountController = TextEditingController();
+  final bankNameController = TextEditingController();
   bool loading = false;
   bool isloading = false;
   String? _pkCode = "";
@@ -122,6 +123,7 @@ class _CustomerReceiptsState extends State<CustomerReceipts> {
         "FKCUST": "$_pkCode",
         "PTYPE": "$_selectedCash",
         "CHQNO": "${bankController.text.trim()}",
+        "BNAME": "${bankNameController.text.trim()}",
         "AMOUNT": "${amountController.text.trim()}"
       };
 
@@ -286,10 +288,30 @@ class _CustomerReceiptsState extends State<CustomerReceipts> {
                       },
                       value: _selectedCash,
                     ),
-                    SizedBox(height: 20),
+                    Visibility(
+                        visible: _selectedCash == "B",
+                        child: SizedBox(height: 20)),
                     Visibility(
                       visible: _selectedCash == "B",
                       child: MyTextForm(
+                        text: 'Bank Name',
+                        containerWidth: double.infinity,
+                        hintText: 'Enter Bank Name..',
+                        controller: bankNameController,
+                        validator: (text) {
+                          if (text.toString().isEmpty) {
+                            return "Bank Name is required";
+                          }
+                        },
+                      ),
+                    ),
+                    Visibility(
+                        visible: _selectedCash == "B",
+                        child: SizedBox(height: 20)),
+                    Visibility(
+                      visible: _selectedCash == "B",
+                      child: MyTextForm(
+                        textKeyboardType: TextInputType.number,
                         text: 'Cheque Number',
                         containerWidth: double.infinity,
                         hintText: 'Enter Cheque No..',
@@ -303,6 +325,7 @@ class _CustomerReceiptsState extends State<CustomerReceipts> {
                     ),
                     SizedBox(height: 20),
                     MyTextForm(
+                      textKeyboardType: TextInputType.number,
                       text: 'Amount',
                       containerWidth: double.infinity,
                       hintText: 'Enter Amount..',
@@ -325,6 +348,7 @@ class _CustomerReceiptsState extends State<CustomerReceipts> {
                         print(_pkCode);
                         print(_selectedCash);
                         print(amountController.text);
+                        print(bankNameController.text);
                         print(usid);
                       },
                       title: 'Submit',

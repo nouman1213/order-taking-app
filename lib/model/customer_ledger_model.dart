@@ -5,14 +5,17 @@ class CustomerLegderModel {
   dynamic oPBAL;
   String? dPFKMAST;
   String? vDT;
-  Null rMKS;
-  Null cHQNO;
+  String? rMKS;
+  String? cHQNO;
   String? sRNO;
   String? fKMAST;
   dynamic dEBIT;
   dynamic cREDIT;
   dynamic bALDIFF;
   String? vTYP;
+  String? bRAND;
+  dynamic qTY;
+  dynamic rATE;
 
   CustomerLegderModel(
       {this.iD,
@@ -28,7 +31,10 @@ class CustomerLegderModel {
       this.dEBIT,
       this.cREDIT,
       this.bALDIFF,
-      this.vTYP});
+      this.vTYP,
+      this.bRAND,
+      this.qTY,
+      this.rATE});
 
   CustomerLegderModel.fromJson(Map<String, dynamic> json) {
     iD = json['ID'];
@@ -45,6 +51,9 @@ class CustomerLegderModel {
     cREDIT = json['CREDIT'];
     bALDIFF = json['BALDIFF'];
     vTYP = json['VTYP'];
+    bRAND = json['BRAND'];
+    qTY = json['QTY'];
+    rATE = json['RATE'];
   }
 
   Map<String, dynamic> toJson() {
@@ -63,6 +72,9 @@ class CustomerLegderModel {
     data['CREDIT'] = this.cREDIT;
     data['BALDIFF'] = this.bALDIFF;
     data['VTYP'] = this.vTYP;
+    data['BRAND'] = this.bRAND;
+    data['QTY'] = this.qTY;
+    data['RATE'] = this.rATE;
     return data;
   }
 }

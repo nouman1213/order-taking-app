@@ -40,18 +40,31 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
           if (snapshot.hasError) {
             print(snapshot.error);
             return Center(
-              child: Text('An error occurred: ${snapshot.error}'),
+              child: Text('Something went wrong please try lator'),
             );
           }
           if (snapshot.hasData) {
             String? formatBalance;
-
             final ledger = snapshot.data;
-            print(ledger);
+            /////////////////////////
+            var tempBal = 0.0;
+            var tempDebit = 0.0;
+            var tempCredit = 0.0;
+            for (var i = 0; i < ledger!.length; i++) {
+              tempDebit = tempDebit + ((ledger[i].dEBIT ?? 0));
+              tempCredit = tempCredit + ((ledger[i].cREDIT ?? 0));
+            }
+            var tempopbala = (ledger[0].oPBAL ?? 0);
+            tempBal = tempopbala;
+            tempBal = tempBal + (tempDebit - tempCredit);
+            String formatTempBal =
+                NumberFormat("#,##0.##", "en_US").format(tempBal);
+
+            // print(ledger);
 
             double sumDebit = 0.0;
             double sumCredit = 0.0;
-            for (int i = 0; i < ledger!.length; i++) {
+            for (int i = 0; i < ledger.length; i++) {
               sumDebit += (ledger[i].dEBIT ?? 0);
               sumCredit += (ledger[i].cREDIT ?? 0);
             }
@@ -130,9 +143,9 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: Text(
-                          'Openning Balance: $formatOpeningBal',
+                          'Openning Balance: ${formatOpeningBal.toString()}',
                           style: TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.w400),
+                              fontSize: 14, fontWeight: FontWeight.w500),
                         ),
                       ),
                       SizedBox(width: 10),
@@ -169,14 +182,33 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                                 var formatcred =
                                     NumberFormat("#,##0.##", "en_US")
                                         .format(credit);
+                                // var formatQTy = int.parse(
+                                //     ledger[index].qTY ?? '--'.split(".")[0]);
+                                // var formatRate = int.parse(
+                                //     ledger[index].rATE ?? '--'.split(".")[0]);
 
                                 //date formate
+
                                 String? dateRange = ledger[index].vDT;
-                                String? fromDate = dateRange!.split(" ")[0];
-                                DateTime fromDateTime =
-                                    DateTime.parse(fromDate);
-                                String formattedFromDate =
-                                    "${fromDateTime.day}-${fromDateTime.month}-${fromDateTime.year}";
+                                String? formattedFromDate;
+
+                                if (dateRange != null) {
+                                  formattedFromDate = dateRange.split(" ")[0];
+                                }
+
+                                if (formattedFromDate != null) {
+                                  DateTime fromDateTime =
+                                      DateTime.parse(formattedFromDate);
+                                  formattedFromDate =
+                                      "${fromDateTime.day}-${fromDateTime.month}-${fromDateTime.year}";
+                                }
+                                // String? dateRange = ledger[index].vDT;
+                                // String? fromDate = dateRange!.split(" ")[0];
+                                // DateTime fromDateTime =
+                                //     DateTime.parse(fromDate);
+
+                                // String formattedFromDate =
+                                //     "${fromDateTime.day}-${fromDateTime.month}-${fromDateTime.year}";
                                 return Container(
                                     decoration: BoxDecoration(
                                         border: Border.symmetric(
@@ -186,16 +218,30 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                                     )),
                                     child: PreviewListCard(
                                       context,
-                                      "$formattedFromDate",
-                                      "${ledger[index].vTYP}",
-                                      "${ledger[index].sRNO}",
-                                      "$formatdebit",
-                                      "$formatcred",
-                                      "$formatBalance",
+                                      "${formattedFromDate?.toString() ?? "Date--"}",
+                                      "${ledger.elementAt(index).vTYP?.toString() ?? 'Type --'}",
+                                      "${ledger.elementAt(index).sRNO?.toString() ?? 'SRNO --'}",
+                                      "${formatdebit}",
+                                      "${formatcred}",
+                                      "${formatBalance?.toString() ?? ''}",
+                                      "${ledger.elementAt(index).bRAND?.toString() ?? "--"}",
+                                      "${ledger.elementAt(index).qTY?.toDouble()?.truncate().toString() ?? "--"}",
+                                      "${ledger.elementAt(index).rATE?.toDouble()?.truncate().toString() ?? "--"}",
                                     )
-                                    // "${ledger[index].dEBIT ?? '00'}",
-                                    // "${ledger[index].cREDIT ?? '00'}",
-                                    // "${(ledger[index].oPBAL ?? 0) + (ledger[index].bALDIFF ?? 0)}"),
+
+                                    // child: PreviewListCard(
+                                    //   context,
+                                    //   "${formattedFromDate}",
+                                    //   "${ledger[index].vTYP?.toString() ?? ''}",
+                                    //   "${ledger[index].sRNO?.toString() ?? ''}",
+                                    //   "${formatdebit}",
+                                    //   "${formatcred}",
+                                    //   "${formatBalance?.toString() ?? ''}",
+                                    //   "${ledger[index].bRAND?.toString() ?? "--"}",
+                                    //   "${ledger[index].qTY?.toString() ?? "--"}",
+                                    //   "${ledger[index].rATE?.toString() ?? "--"}",
+                                    // )
+
                                     );
                               },
                             ),
@@ -210,7 +256,7 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                     color: Theme.of(context).colorScheme.primary,
                     debit: '$formatDebit',
                     credit: '$formatCredit',
-                    // amount: "$formatBalance",
+                    amount: "$formatTempBal",
                   )
                 ],
               ),
@@ -222,8 +268,17 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
     );
   }
 
-  SizedBox PreviewListCard(context, String? date, String? type, String? name,
-      String? dabit, String? credit, String? balance,
+  SizedBox PreviewListCard(
+      context,
+      String? date,
+      String? type,
+      String? name,
+      String? dabit,
+      String? credit,
+      String? balance,
+      String? brand,
+      var qty,
+      var rate,
       {Callback? ontap}) {
     return SizedBox(
       width: double.infinity,
@@ -236,58 +291,150 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
               child: Card(
                 // elevation: 5,
                 child: SizedBox(
-                  height: 40,
+                  height: MediaQuery.of(context).size.height * 0.09,
                   child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Text(
-                                    '$date',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      // fontWeight: FontWeight.w600,
-                                      // color: Theme.of(context).colorScheme.onPrimary,
-                                    ),
-                                  )),
-                              SizedBox(
-                                  width: MediaQuery.of(context).size.width *
-                                      0.050),
-                              Align(
-                                alignment: Alignment.topRight,
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Align(
+                                alignment: Alignment.topLeft,
                                 child: Text(
-                                  '$type',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    // color: Theme.of(context).colorScheme.onPrimary,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Align(
-                              alignment: Alignment.bottomLeft,
-                              child: SingleChildScrollView(
-                                child: Text(
-                                  '$name',
+                                  '$date',
                                   style: TextStyle(
                                     fontSize: 12,
                                     // fontWeight: FontWeight.w600,
                                     // color: Theme.of(context).colorScheme.onPrimary,
                                   ),
+                                )),
+                            SizedBox(
+                                width:
+                                    MediaQuery.of(context).size.width * 0.070),
+                            Align(
+                              // alignment: Alignment.topRight,
+                              child: Text(
+                                '$type',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  // color: Theme.of(context).colorScheme.onPrimary,
                                 ),
-                              )),
-                        ],
-                      ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          // mainAxisAlignment: MainAxisAlignment.spaceBe tween,
+                          children: [
+                            Expanded(
+                                child: Row(
+                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              // crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'B:',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      // color: Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    '$brand',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      // fontWeight: FontWeight.w600,
+                                      // color: Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )),
+                            Expanded(
+                                child: Row(
+                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              // crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'Q:',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      // color: Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    '$qty',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      // fontWeight: FontWeight.w600,
+                                      // color: Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )),
+                            Expanded(
+                                child: Row(
+                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              // crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    'R:',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      // color: Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    '$rate',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      // fontWeight: FontWeight.w600,
+                                      // color: Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )),
+                          ],
+                        ),
+                        Align(
+                            alignment: Alignment.bottomLeft,
+                            child: SingleChildScrollView(
+                              child: Text(
+                                '$name',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  // fontWeight: FontWeight.w600,
+                                  // color: Theme.of(context).colorScheme.onPrimary,
+                                ),
+                              ),
+                            )),
+                      ],
                     ),
                   ),
                 ),
@@ -301,7 +448,7 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
               child: Card(
                 // elevation: 5,
                 child: SizedBox(
-                  height: 40,
+                  height: MediaQuery.of(context).size.height * 0.09,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Align(
@@ -330,7 +477,7 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
               child: Card(
                 // elevation: 5,
                 child: SizedBox(
-                  height: 40,
+                  height: MediaQuery.of(context).size.height * 0.09,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Align(
@@ -359,7 +506,7 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
               child: Card(
                 // elevation: 5,
                 child: SizedBox(
-                  height: 40,
+                  height: MediaQuery.of(context).size.height * 0.09,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Align(

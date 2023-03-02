@@ -7,6 +7,7 @@ import '../model/customer_balance_mode.dart';
 import '../model/customer_ledger_model.dart';
 import '../model/getcustomer_model.dart';
 import '../model/pending_order_model.dart';
+import '../model/receipt_list_model.dart';
 
 class ApiService {
   static const baseUrl = "http://194.116.228.5:131/Api/";
@@ -126,6 +127,23 @@ class ApiService {
         return jsonList
             .map((json) => CustomerLegderModel.fromJson(json))
             .toList();
+      } else {
+        throw Exception("Failed to load data from API");
+      }
+    } catch (e) {
+      throw Exception("An error occurred: $e");
+    }
+  }
+
+  // ReceiptList api
+  static Future<List<RecieptListModel>> getReceiptList(String endpoint) async {
+    try {
+      final response = await http.get(Uri.parse("$baseUrl$endpoint"));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = json.decode(response.body);
+        // print(jsonList);
+        return jsonList.map((json) => RecieptListModel.fromJson(json)).toList();
       } else {
         throw Exception("Failed to load data from API");
       }

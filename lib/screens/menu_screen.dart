@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:saif/screens/recieptList.dart';
 import '../componets/my_drawer.dart';
 import '../componets/my_homecard.dart';
 import 'customer_balance_screen.dart';
@@ -12,7 +13,9 @@ import 'orderlist_screen.dart';
 class MenuScreen extends StatelessWidget {
   MenuScreen({super.key});
   List menuList = [
-    MyHomeCard(text: 'Order List', imagePath: "assets/images/orderlist.png"),
+    MyHomeCard(text: 'Orders List', imagePath: "assets/images/orderlist.png"),
+    MyHomeCard(
+        text: 'Reciepts List', imagePath: "assets/images/receiptList.png"),
     MyHomeCard(text: 'New Order', imagePath: "assets/images/neworder.png"),
     MyHomeCard(
         text: 'Customer Balance', imagePath: "assets/images/balance.png"),
@@ -45,16 +48,21 @@ class MenuScreen extends StatelessWidget {
 
                     break;
                   case 1:
-                    Get.to(NewOrderListScreen(),
+                    Get.to(ReceiptListScreen(),
                         transition: Transition.leftToRightWithFade);
 
                     break;
                   case 2:
-                    Get.to(CustomerBAlanceScreen(),
+                    Get.to(NewOrderListScreen(),
                         transition: Transition.leftToRightWithFade);
 
                     break;
                   case 3:
+                    Get.to(CustomerBAlanceScreen(),
+                        transition: Transition.leftToRightWithFade);
+
+                    break;
+                  case 4:
                     Get.to(
                         CustomerLedgerScreen(
                           selectedCustomerName: "Select Customer",
@@ -62,7 +70,7 @@ class MenuScreen extends StatelessWidget {
                         transition: Transition.leftToRightWithFade);
 
                     break;
-                  case 4:
+                  case 5:
                     Get.to(CustomerReceipts(),
                         transition: Transition.leftToRightWithFade);
 

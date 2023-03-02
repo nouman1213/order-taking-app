@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:saif/componets/text_widget.dart';
 import 'package:saif/screens/about_us.dart';
+import 'package:saif/screens/recieptList.dart';
 
 import '../screens/customer_balance_screen.dart';
 import '../screens/customer_ledger.dart';
@@ -106,6 +107,21 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => OrderListScreen()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    title: MyTextWidget(
+                      text: 'Reciepts List',
+                    ),
+                    trailing: Icon(Icons.arrow_forward_ios),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      await Future.delayed(Duration(milliseconds: 1));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ReceiptListScreen()),
                       );
                     },
                   ),

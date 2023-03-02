@@ -18,7 +18,7 @@ class MyTextForm extends StatelessWidget {
   final String? dateMask;
   const MyTextForm({
     Key? key,
-    @required this.text,
+    this.text,
     @required this.containerWidth,
     @required this.hintText,
     this.textKeyboardType,

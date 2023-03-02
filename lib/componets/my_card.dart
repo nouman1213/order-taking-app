@@ -98,20 +98,24 @@ class MyCard extends StatelessWidget {
           ),
           // SizedBox(width: 20)
           Expanded(
-            child: SizedBox(
-              height: 45,
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Text('',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontWeight: FontWeight.w600,
-                        )),
+            child: Card(
+              color: color,
+              elevation: 5,
+              child: SizedBox(
+                height: 45,
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Text('$amount',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontWeight: FontWeight.w600,
+                          )),
+                    ),
                   ),
                 ),
               ),

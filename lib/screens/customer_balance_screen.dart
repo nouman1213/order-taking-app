@@ -16,6 +16,34 @@ class CustomerBAlanceScreen extends StatefulWidget {
 
 class _CustomerBAlanceScreenState extends State<CustomerBAlanceScreen> {
   double? _totalBalance = 0;
+  final _searchFocusNode = FocusNode();
+  bool loading = false;
+
+  List<CustomerBalanceModel>? customerBalanceList;
+  List<CustomerBalanceModel>? filteredList;
+  final _searchController = TextEditingController();
+
+  //getapi method
+  Future<List<CustomerBalanceModel>> getData() async {
+    customerBalanceList =
+        await ApiService.getCustomerBalance('CustomerBal/GetBalance/');
+    filteredList = customerBalanceList;
+    return filteredList!;
+  }
+
+  // filteredData method
+  void searchCustomer(String query) {
+    final suggestion = query.isEmpty
+        ? customerBalanceList
+        : customerBalanceList!.where((element) {
+            final name = element.name!.toLowerCase();
+            final input = query.toLowerCase();
+            return name.contains(input);
+          }).toList();
+    setState(() {
+      filteredList = suggestion;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,76 +56,118 @@ class _CustomerBAlanceScreenState extends State<CustomerBAlanceScreen> {
         // backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       ),
       body: FutureBuilder<List<CustomerBalanceModel>>(
-        future: ApiService.getCustomerBalance('CustomerBal/GetBalance/'),
+        future: getData(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          bool isSearching = _searchFocusNode.hasFocus;
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              !isSearching) {
             return Center(
               child: CircularProgressIndicator.adaptive(),
             );
           }
-          if (snapshot.hasError) {
-            print(snapshot.error);
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
-              child: Text('An error occurred: ${snapshot.error}'),
+              child: Text('No data'),
             );
           }
-          if (snapshot.hasData) {
-            final customers = snapshot.data!;
-
-            _totalBalance = customers.fold(
-                0, (sum, customer) => sum! + (customer.balance ?? 0));
-            String formattedTotalAmount =
-                NumberFormat("#,##0.##", "en_US").format(_totalBalance);
-            // print(customers);
-            return Container(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Column(
-                  children: [
-                    SizedBox(height: 10),
-                    balanceListCard(context, "Customer Name", "Balance",
-                        Theme.of(context).colorScheme.primary),
-                    SizedBox(height: 10),
-                    Expanded(
-                      flex: 3,
+          _totalBalance = customerBalanceList!
+              .fold(0, (sum, customer) => sum! + (customer.balance ?? 0));
+          String formattedTotalAmount =
+              NumberFormat("#,##0.##", "en_US").format(_totalBalance);
+          customerBalanceList = snapshot.data;
+          return Column(
+            children: [
+              SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: TextFormField(
+                  controller: _searchController,
+                  focusNode: _searchFocusNode,
+                  onChanged: searchCustomer,
+                  textInputAction: TextInputAction.done,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.search),
+                    isDense: true,
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.error),
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.error),
+                      borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.primary),
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 2.0),
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 2.0),
+                      borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                    ),
+                    hintText: 'Search Customers...',
+                    hintStyle: TextStyle(color: Colors.grey[600]),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              balanceListCard(context, "Customer Name", "Balance",
+                  Theme.of(context).colorScheme.primary),
+              SizedBox(height: 10),
+              filteredList!.isEmpty
+                  ? Center(
+                      child: SizedBox(
+                          height: 200,
+                          child: Center(child: Text('No data found'))),
+                    )
+                  : Expanded(
                       child: ListView.builder(
-                        // shrinkWrap: true,
-                        itemCount: customers.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          final customer = customers[index];
-                          String formattedAmount =
-                              NumberFormat("#,##0.##", "en_US")
-                                  .format(customer.balance);
-
+                        shrinkWrap: true,
+                        itemCount: filteredList!.length,
+                        itemBuilder: (context, index) {
+                          var formateAmount = NumberFormat("#,##0.##", "en_US")
+                              .format(double.parse(
+                            filteredList![index].balance.toString(),
+                          ));
+                          CustomerBalanceModel selectedCustomer =
+                              filteredList![index];
                           return balanceListCard(
                               context,
-                              customer.name ?? "Customer Name",
-                              // customer.balance.toString(),
-                              formattedAmount,
+                              filteredList![index].name ?? "Customer Name",
+                              formateAmount,
                               Theme.of(context).colorScheme.secondary,
                               ontap: () {
-                            Get.to(CustomerLedgerScreen(
-                              selectedCustomerName: customers[index].name,
-                              selectedCustomerId: customers[index].pkcode,
-                            ));
+                            _searchController.clear();
+                            Get.to(
+                                CustomerLedgerScreen(
+                                  selectedCustomerName: selectedCustomer.name,
+                                  selectedCustomerId: selectedCustomer.pkcode,
+                                ),
+                                transition: Transition.leftToRightWithFade);
                           });
                         },
                       ),
                     ),
-                    Container(
-                      child: balanceListCard(
-                          context,
-                          "Total",
-                          formattedTotalAmount,
-                          Theme.of(context).colorScheme.primary),
-                    ),
-                    SizedBox(height: 10),
-                  ],
-                ),
+              Container(
+                child: balanceListCard(
+                    context,
+                    "Total",
+                    '$formattedTotalAmount',
+                    Theme.of(context).colorScheme.primary),
               ),
-            );
-          }
-          return Container();
+              SizedBox(height: 10),
+            ],
+          );
         },
       ),
     );

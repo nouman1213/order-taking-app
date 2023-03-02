@@ -17,7 +17,7 @@ class MyHomeCard extends StatelessWidget {
               border: Border.all(),
               borderRadius: BorderRadius.circular(12)),
           width: MediaQuery.of(context).size.width - 20,
-          height: 120,
+          height: MediaQuery.of(context).size.height * 0.13,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
