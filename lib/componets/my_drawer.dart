@@ -189,7 +189,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                   ),
                   ListTile(
                     title: MyTextWidget(
-                      text: 'Abous US',
+                      text: 'About US',
                     ),
                     trailing: Icon(Icons.arrow_forward_ios),
                     onTap: () async {

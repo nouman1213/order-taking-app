@@ -19,7 +19,7 @@ class CustomeLedgerPreview extends StatefulWidget {
 }
 
 class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
-  final dateFormat = DateFormat("dd-MMM-yyyy");
+  // final dateFormat = DateFormat("dd-MMM-yyyy");
 
   @override
   Widget build(BuildContext context) {
@@ -46,11 +46,35 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
           if (snapshot.hasData) {
             String? formatBalance;
             final ledger = snapshot.data;
+
+            ////////////////////////
+            List<double> debitValues = [];
+            List<double> creditValues = [];
+            List<double> balanceValues = [];
+            double debitValue = 0.0;
+            double creditValue = 0.0;
+            for (var i = 0; i < ledger!.length; i++) {
+              double balance;
+
+              debitValue = debitValue + ((ledger[i].dEBIT ?? 0));
+              creditValue = creditValue + ((ledger[i].cREDIT ?? 0));
+              // double debit = double.parse(debitValue);
+              // double credit = double.parse(creditValue);
+
+              double opnBalance = ledger[i].oPBAL.toDouble();
+              balance = opnBalance;
+
+              balance += (debitValue - creditValue);
+
+              debitValues.add(debitValue);
+              creditValues.add(creditValue);
+              balanceValues.add(balance);
+            }
             /////////////////////////
             var tempBal = 0.0;
             var tempDebit = 0.0;
             var tempCredit = 0.0;
-            for (var i = 0; i < ledger!.length; i++) {
+            for (var i = 0; i < ledger.length; i++) {
               tempDebit = tempDebit + ((ledger[i].dEBIT ?? 0));
               tempCredit = tempCredit + ((ledger[i].cREDIT ?? 0));
             }
@@ -59,9 +83,11 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
             tempBal = tempBal + (tempDebit - tempCredit);
             String formatTempBal =
                 NumberFormat("#,##0.##", "en_US").format(tempBal);
-
+            debitValues.add(tempDebit);
+            creditValues.add(tempCredit);
+            balanceValues.add(tempBal);
             // print(ledger);
-
+            ////// sum of debit and credit value
             double sumDebit = 0.0;
             double sumCredit = 0.0;
             for (int i = 0; i < ledger.length; i++) {
@@ -132,7 +158,7 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                   ),
 
                   SizedBox(height: 10),
-                  HeadingCard(context, "Description", "Dabit", "Cedit",
+                  HeadingCard(context, "Description", "Debit", "Credit",
                       'Balance', Theme.of(context).colorScheme.primary),
                   SizedBox(height: 10),
                   // Divider(thickness: 1, color: Colors.grey),
@@ -163,32 +189,6 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                             child: ListView.builder(
                               itemCount: ledger.length,
                               itemBuilder: (BuildContext context, int index) {
-                                //calculate debit and credit from openningBalance
-                                String debitvalue =
-                                    "${ledger[index].dEBIT ?? '00'}";
-                                String creditvalue =
-                                    "${ledger[index].cREDIT ?? '00'}";
-
-                                int debit = int.parse(debitvalue.split(".")[0]);
-                                int credit =
-                                    int.parse(creditvalue.split(".")[0]);
-                                balancevalue += debit - credit;
-                                formatBalance =
-                                    NumberFormat("#,##0.##", "en_US")
-                                        .format(balancevalue);
-                                var formatdebit =
-                                    NumberFormat("#,##0.##", "en_US")
-                                        .format(debit);
-                                var formatcred =
-                                    NumberFormat("#,##0.##", "en_US")
-                                        .format(credit);
-                                // var formatQTy = int.parse(
-                                //     ledger[index].qTY ?? '--'.split(".")[0]);
-                                // var formatRate = int.parse(
-                                //     ledger[index].rATE ?? '--'.split(".")[0]);
-
-                                //date formate
-
                                 String? dateRange = ledger[index].vDT;
                                 String? formattedFromDate;
 
@@ -202,13 +202,19 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                                   formattedFromDate =
                                       "${fromDateTime.day}-${fromDateTime.month}-${fromDateTime.year}";
                                 }
-                                // String? dateRange = ledger[index].vDT;
-                                // String? fromDate = dateRange!.split(" ")[0];
-                                // DateTime fromDateTime =
-                                //     DateTime.parse(fromDate);
+                                // double debit = debitValues[index];
+                                // double credit = creditValues[index];
+                                double balance = balanceValues[index];
 
-                                // String formattedFromDate =
-                                //     "${fromDateTime.day}-${fromDateTime.month}-${fromDateTime.year}";
+                                NumberFormat formatter =
+                                    NumberFormat("#,##0.##", "en_US");
+
+                                String formattedDebit =
+                                    formatter.format(ledger[index].dEBIT);
+                                String formattedCredit =
+                                    formatter.format(ledger[index].cREDIT);
+                                String formattedBalance =
+                                    formatter.format(balance);
                                 return Container(
                                     decoration: BoxDecoration(
                                         border: Border.symmetric(
@@ -221,28 +227,13 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                                       "${formattedFromDate?.toString() ?? "Date--"}",
                                       "${ledger.elementAt(index).vTYP?.toString() ?? 'Type --'}",
                                       "${ledger.elementAt(index).sRNO?.toString() ?? 'SRNO --'}",
-                                      "${formatdebit}",
-                                      "${formatcred}",
-                                      "${formatBalance?.toString() ?? ''}",
+                                      formattedDebit,
+                                      "${formattedCredit}",
+                                      "${formattedBalance}",
                                       "${ledger.elementAt(index).bRAND?.toString() ?? "--"}",
                                       "${ledger.elementAt(index).qTY?.toDouble()?.truncate().toString() ?? "--"}",
                                       "${ledger.elementAt(index).rATE?.toDouble()?.truncate().toString() ?? "--"}",
-                                    )
-
-                                    // child: PreviewListCard(
-                                    //   context,
-                                    //   "${formattedFromDate}",
-                                    //   "${ledger[index].vTYP?.toString() ?? ''}",
-                                    //   "${ledger[index].sRNO?.toString() ?? ''}",
-                                    //   "${formatdebit}",
-                                    //   "${formatcred}",
-                                    //   "${formatBalance?.toString() ?? ''}",
-                                    //   "${ledger[index].bRAND?.toString() ?? "--"}",
-                                    //   "${ledger[index].qTY?.toString() ?? "--"}",
-                                    //   "${ledger[index].rATE?.toString() ?? "--"}",
-                                    // )
-
-                                    );
+                                    ));
                               },
                             ),
                           ),
@@ -331,94 +322,46 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                           // mainAxisAlignment: MainAxisAlignment.spaceBe tween,
                           children: [
                             Expanded(
-                                child: Row(
-                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              // crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'B:',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      // color: Theme.of(context).colorScheme.onPrimary,
-                                    ),
+                                child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Text(
+                                  '$brand',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    // fontWeight: FontWeight.w600,
+                                    // color: Theme.of(context).colorScheme.onPrimary,
                                   ),
                                 ),
-                                SizedBox(height: 4),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    '$brand',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      // fontWeight: FontWeight.w600,
-                                      // color: Theme.of(context).colorScheme.onPrimary,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             )),
                             Expanded(
-                                child: Row(
-                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              // crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Q:',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      // color: Theme.of(context).colorScheme.onPrimary,
-                                    ),
-                                  ),
+                                child: Align(
+                              alignment: Alignment.center,
+                              child: Text(
+                                '$qty',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  // fontWeight: FontWeight.w600,
+                                  // color: Theme.of(context).colorScheme.onPrimary,
                                 ),
-                                SizedBox(height: 4),
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '$qty',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      // fontWeight: FontWeight.w600,
-                                      // color: Theme.of(context).colorScheme.onPrimary,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             )),
                             Expanded(
-                                child: Row(
-                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              // crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    'R:',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      // color: Theme.of(context).colorScheme.onPrimary,
-                                    ),
+                                child: Align(
+                              alignment: Alignment.centerRight,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Text(
+                                  '$rate',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    // fontWeight: FontWeight.w600,
+                                    // color: Theme.of(context).colorScheme.onPrimary,
                                   ),
                                 ),
-                                SizedBox(height: 4),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    '$rate',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      // fontWeight: FontWeight.w600,
-                                      // color: Theme.of(context).colorScheme.onPrimary,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             )),
                           ],
                         ),
@@ -548,22 +491,70 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                 color: color,
                 elevation: 5,
                 child: SizedBox(
-                  height: 45,
+                  height: 50,
                   child: Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: Align(
-                        alignment: Alignment.center,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Text(
-                            '$name',
-                            style: TextStyle(
-                              // fontSize: 1,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
+                        // alignment: Alignment.center,
+                        child: Column(
+                      children: [
+                        Text(
+                          '$name',
+                          style: TextStyle(
+                            // fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onPrimary,
                           ),
-                        )),
+                        ),
+                        Spacer(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Text(
+                                  'B',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Text(
+                                  'Q',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Text(
+                                  'R',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    )),
                   ),
                 ),
               ),
@@ -577,7 +568,7 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                 color: color,
                 elevation: 5,
                 child: SizedBox(
-                  height: 45,
+                  height: 50,
                   child: Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: Align(
@@ -587,6 +578,7 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                           child: Text(
                             '$dabit',
                             style: TextStyle(
+                              // fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: Theme.of(context).colorScheme.onPrimary,
                             ),
@@ -605,7 +597,7 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                 color: color,
                 elevation: 5,
                 child: SizedBox(
-                  height: 45,
+                  height: 50,
                   child: Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: Align(
@@ -615,6 +607,7 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                           child: Text(
                             '$credit',
                             style: TextStyle(
+                              // fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: Theme.of(context).colorScheme.onPrimary,
                             ),
@@ -643,6 +636,7 @@ class _CustomeLedgerPreviewState extends State<CustomeLedgerPreview> {
                           child: Text(
                             '$balance',
                             style: TextStyle(
+                              // fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: Theme.of(context).colorScheme.onPrimary,
                             ),

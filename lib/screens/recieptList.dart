@@ -44,24 +44,80 @@ class ReceiptListScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 6),
                 child: Column(
                   children: [
-                    // SizedBox(height: 30),
-                    receiptListCard(
-                      context,
-                      "Customer Name",
-                      "Type",
-                      "Amount",
-                      Theme.of(context).colorScheme.primary,
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 4,
+                          child: Card(
+                            color: Theme.of(context).colorScheme.primary,
+                            elevation: 2,
+                            child: SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.07,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Center(
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Text(
+                                          "Customer Name",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 18,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
+                                          ),
+                                        )),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Card(
+                            color: Theme.of(context).colorScheme.primary,
+                            elevation: 2,
+                            child: SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.07,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    "Amount",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     Expanded(
                         child: ListView.builder(
                       itemCount: receiplist!.length,
                       itemBuilder: (BuildContext context, int index) {
+                        var _date = receiplist[index].vDATE?.toString() ?? "--";
+                        var formatedDate = _date.split("T")[0];
                         var formateAmount = NumberFormat("#,##0.##", "en_US")
                             .format(double.parse(
                                 receiplist[index].aMOUNT?.toString() ?? "0"));
                         return receiptListCard(
                             context,
                             receiplist[index].nAME?.toString() ?? "--",
+                            // receiplist[index].vDATE?.toString() ?? "--",
+                            formatedDate,
                             receiplist[index].pTYPE?.toString() ?? "--",
                             formateAmount,
                             Theme.of(context).colorScheme.secondary);
@@ -78,54 +134,78 @@ class ReceiptListScreen extends StatelessWidget {
     );
   }
 
-  SizedBox receiptListCard(BuildContext context, String? title, String? type,
-      String? amount, Color color) {
+  SizedBox receiptListCard(BuildContext context, String? title, var date,
+      var type, String? amount, Color color) {
     return SizedBox(
       width: double.infinity,
       child: Row(
         children: [
           Expanded(
-            flex: 3,
+            flex: 4,
             child: Card(
               color: color,
               elevation: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Text(
-                          "$title",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            color: Theme.of(context).colorScheme.onPrimary,
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.07,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Column(
+                        // mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "$date",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                    ),
+                                  ),
+                                ),
+                                Spacer(),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    "PTYPE: $type",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        )),
+                          Spacer(),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Text(
+                              "$title",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Card(
-              color: color,
-              elevation: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(
-                  child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Text(
-                        "$type",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                      )),
                 ),
               ),
             ),
@@ -135,19 +215,21 @@ class ReceiptListScreen extends StatelessWidget {
             child: Card(
               color: color,
               elevation: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(
-                  child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Text(
-                        "$amount",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                      )),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.07,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      "$amount",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
