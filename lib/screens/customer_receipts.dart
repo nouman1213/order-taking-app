@@ -19,7 +19,7 @@ class CustomerReceipts extends StatefulWidget {
 }
 
 class _CustomerReceiptsState extends State<CustomerReceipts> {
-  String? usid = GetStorage().read('USID');
+  String? usid;
 
   final formKey = GlobalKey<FormState>();
   final bankController = TextEditingController();
@@ -74,7 +74,7 @@ class _CustomerReceiptsState extends State<CustomerReceipts> {
       isloading = true;
     });
     try {
-      final data = await ApiService.get("CustomerBal/GetBalance/");
+      final data = await ApiService.get("CustomerBal/GetBalance?usid=$usid");
       if (data != null) {
         List<String> menuItems = [];
 
@@ -174,6 +174,8 @@ class _CustomerReceiptsState extends State<CustomerReceipts> {
 
   @override
   void initState() {
+    usid = GetStorage().read('usid');
+
     _fetchCustomer2();
     super.initState();
   }

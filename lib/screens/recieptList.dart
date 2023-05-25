@@ -7,7 +7,7 @@ import 'package:saif/services/service.dart';
 // ignore: must_be_immutable
 class ReceiptListScreen extends StatelessWidget {
   ReceiptListScreen({super.key});
-  String? usid = GetStorage().read("USID");
+  String? usid = GetStorage().read("usid");
 
   @override
   Widget build(BuildContext context) {

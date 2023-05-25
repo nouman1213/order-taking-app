@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:saif/componets/text_widget.dart';
 import 'package:saif/screens/about_us.dart';
+import 'package:saif/screens/login_screen.dart';
 import 'package:saif/screens/recieptList.dart';
 
 import '../screens/customer_balance_screen.dart';
@@ -196,6 +197,22 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       Navigator.pop(context);
                       await Future.delayed(Duration(milliseconds: 1));
                       Get.to(() => AboutUs(),
+                          transition: Transition.leftToRightWithFade);
+                    },
+                  ),
+                  ListTile(
+                    title: MyTextWidget(
+                      text: 'Logout',
+                    ),
+                    trailing: Icon(Icons.logout),
+                    onTap: () async {
+                      GetStorage().remove('email');
+                      GetStorage().remove('password');
+                      GetStorage().remove('usid');
+
+                      Navigator.pop(context);
+                      await Future.delayed(Duration(milliseconds: 1));
+                      Get.offAll(() => LoginScreen(),
                           transition: Transition.leftToRightWithFade);
                     },
                   ),

@@ -4,6 +4,7 @@ import 'package:saif/controller/login_controller.dart';
 
 import '../componets/roundbutton.dart';
 import '../componets/textfield.dart';
+import 'menu_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
@@ -19,6 +20,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (appController.isUserLoggedIn) {
+      // if user is already logged in, redirect to the main screen
+      return MenuScreen();
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(

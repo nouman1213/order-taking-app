@@ -21,7 +21,8 @@ class NewOrderListScreen extends StatefulWidget {
 }
 
 class _NewOrderListScreenState extends State<NewOrderListScreen> {
-  String? usid = GetStorage().read('USID');
+  String? usid;
+  //  String? usid = GetStorage().read('usid');
   bool loading = false;
   var quantity = 0.0;
   var rate = 0.0;
@@ -56,7 +57,7 @@ class _NewOrderListScreenState extends State<NewOrderListScreen> {
       loading = true;
     });
     try {
-      final data = await ApiService.get("Order/GetCustomer/");
+      final data = await ApiService.get("Order/GetCustomer/?USID=$usid");
       if (data != null) {
         setState(() {
           loading = false;
@@ -235,7 +236,6 @@ class _NewOrderListScreenState extends State<NewOrderListScreen> {
         }
       } else {
         setState(() {
-          ;
           loading = false;
         });
         Fluttertoast.showToast(
@@ -250,7 +250,8 @@ class _NewOrderListScreenState extends State<NewOrderListScreen> {
 
   @override
   void initState() {
-    print(usid);
+    usid = GetStorage().read('usid');
+    print("KKKKKKKKKKKKKKKKKKK$usid");
     _fetchCustomerItems();
     _fetchGetCustomersApi();
     super.initState();
@@ -289,152 +290,166 @@ class _NewOrderListScreenState extends State<NewOrderListScreen> {
                               text: 'Select Customer',
                               color: Theme.of(context).colorScheme.primary),
                           SizedBox(height: 10),
-                          DropdownSearch<String>(
-                            dropdownBuilder: (context, selectedItem) {
-                              return Text(
-                                selectedItem.toString(),
-                                style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                  fontSize: 16,
-                                ),
-                              );
-                            },
-                            mode: Mode.MENU,
-                            showSelectedItems: true,
-                            items: getCustomersList,
-                            dropdownSearchDecoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color:
+                          getCustomersList != null
+                              ? DropdownSearch<String>(
+                                  dropdownBuilder: (context, selectedItem) {
+                                    return Text(
+                                      selectedItem.toString(),
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                        fontSize: 16,
+                                      ),
+                                    );
+                                  },
+                                  mode: Mode.MENU,
+                                  showSelectedItems: true,
+                                  items: getCustomersList,
+                                  dropdownSearchDecoration: InputDecoration(
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          width: 1),
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          width: 1),
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    filled: true,
+                                    isDense: true,
+                                    fillColor:
                                         Theme.of(context).colorScheme.primary,
-                                    width: 1),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    width: 1),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              filled: true,
-                              isDense: true,
-                              fillColor: Theme.of(context).colorScheme.primary,
-                              // labelText: "",
-                              hintText: "search here..",
-                            ),
-                            popupItemDisabled: isItemDisabled,
-                            selectedItem: _customerName,
-                            onChanged: (value) {
-                              // print(getCustomersList);
-                              // print(pkCodesListGetCustomer);
-                              setState(() {
-                                _customerName = value;
+                                    // labelText: "",
+                                    hintText: "search here..",
+                                  ),
+                                  popupItemDisabled: isItemDisabled,
+                                  selectedItem: _customerName,
+                                  onChanged: (value) {
+                                    // print(getCustomersList);
+                                    // print(pkCodesListGetCustomer);
+                                    setState(() {
+                                      _customerName = value;
 
-                                print("..CustomerName..$_customerName");
-                                //checks on specific value
-                                if (value is List<String>) {
-                                  _pkcodeForGetCustomr =
-                                      Set.from(value as Iterable);
-                                } else {
-                                  _pkcodeForGetCustomr.clear();
-                                  _pkcodeForGetCustomr.add(
-                                      pkCodesListGetCustomer[
-                                          getCustomersList!.indexOf(value!)]);
-                                }
-                                _finalPkCodeForCustomerName =
-                                    _pkcodeForGetCustomr.join(', ');
+                                      print("..CustomerName..$_customerName");
+                                      //checks on specific value
+                                      if (value is List<String>) {
+                                        _pkcodeForGetCustomr =
+                                            Set.from(value as Iterable);
+                                      } else {
+                                        _pkcodeForGetCustomr.clear();
+                                        _pkcodeForGetCustomr.add(
+                                            pkCodesListGetCustomer[
+                                                getCustomersList!
+                                                    .indexOf(value!)]);
+                                      }
+                                      _finalPkCodeForCustomerName =
+                                          _pkcodeForGetCustomr.join(', ');
 
-                                // _pkcodeForGetCustomr = pkCodesListGetCustomer[
-                                //         getCustomersList!.indexOf(value!)]
-                                //     as Set<String>;
+                                      // _pkcodeForGetCustomr = pkCodesListGetCustomer[
+                                      //         getCustomersList!.indexOf(value!)]
+                                      //     as Set<String>;
 
-                                print(
-                                    "..getCustomerpkcode..$_finalPkCodeForCustomerName");
-                              });
-                            },
-                            validator: (value) {
-                              if (value == "Select Customer") {
-                                return "Please select a Customer";
-                              }
-                              return null;
-                            },
-                            showSearchBox: true,
-                            searchFieldProps: TextFieldProps(
-                              decoration:
-                                  InputDecoration(hintText: 'Search here..'),
-                            ),
-                          ),
+                                      print(
+                                          "..getCustomerpkcode..$_finalPkCodeForCustomerName");
+                                    });
+                                  },
+                                  validator: (value) {
+                                    if (value == "Select Customer") {
+                                      return "Please select a Customer";
+                                    }
+                                    return null;
+                                  },
+                                  showSearchBox: true,
+                                  searchFieldProps: TextFieldProps(
+                                    decoration: InputDecoration(
+                                        hintText: 'Search here..'),
+                                  ),
+                                )
+                              : CircularProgressIndicator.adaptive(),
                           SizedBox(height: 20),
                           MyTextWidget(
                               text: 'Select Product',
                               color: Theme.of(context).colorScheme.primary),
                           SizedBox(height: 10),
-                          DropdownSearch<String>(
-                            dropdownBuilder: (context, selectedItem) {
-                              return Text(
-                                selectedItem.toString(),
-                                style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                  fontSize: 16,
-                                ),
-                              );
-                            },
-                            mode: Mode.MENU,
-                            showSelectedItems: true,
-                            items: customerProductList,
-                            dropdownSearchDecoration: InputDecoration(
-                              iconColor: Colors.white,
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color:
+                          customerProductList != null
+                              ? DropdownSearch<String>(
+                                  dropdownBuilder: (context, selectedItem) {
+                                    return Text(
+                                      selectedItem.toString(),
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                        fontSize: 16,
+                                      ),
+                                    );
+                                  },
+                                  mode: Mode.MENU,
+                                  showSelectedItems: true,
+                                  items: customerProductList,
+                                  dropdownSearchDecoration: InputDecoration(
+                                    iconColor: Colors.white,
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          width: 1),
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          width: 1),
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    filled: true,
+                                    isDense: true,
+                                    fillColor:
                                         Theme.of(context).colorScheme.primary,
-                                    width: 1),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    width: 1),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              filled: true,
-                              isDense: true,
-                              fillColor: Theme.of(context).colorScheme.primary,
-                              // labelText: "",
-                              hintText: "search here..",
-                            ),
-                            popupItemDisabled: isItemDisabled,
-                            selectedItem: _customerProduct,
-                            onChanged: (value) {
-                              // print(customersList);
-                              setState(() {
-                                _customerProduct = value;
-                                print("..ProductName..$_customerProduct");
+                                    // labelText: "",
+                                    hintText: "search here..",
+                                  ),
+                                  popupItemDisabled: isItemDisabled,
+                                  selectedItem: _customerProduct,
+                                  onChanged: (value) {
+                                    // print(customersList);
+                                    setState(() {
+                                      _customerProduct = value;
+                                      print("..ProductName..$_customerProduct");
 
-                                _pkcodeforProduct = pkCodesforProductList[
-                                    customerProductList!.indexOf(value!)];
-                                print("..Productpkcode..$_pkcodeforProduct");
-                                // print(
-                                //     "..ProductListCodesss..$customerProductList");
-                              });
-                            },
-                            validator: (value) {
-                              if (value == "Select Product") {
-                                return "Please select a Product";
-                              }
-                              return null;
-                            },
-                            showSearchBox: true,
-                            searchFieldProps: TextFieldProps(
-                              decoration:
-                                  InputDecoration(hintText: 'Search here..'),
-                              cursorColor: Colors.blue,
-                            ),
-                          ),
+                                      _pkcodeforProduct = pkCodesforProductList[
+                                          customerProductList!.indexOf(value!)];
+                                      print(
+                                          "..Productpkcode..$_pkcodeforProduct");
+                                      // print(
+                                      //     "..ProductListCodesss..$customerProductList");
+                                    });
+                                  },
+                                  validator: (value) {
+                                    if (value == "Select Product") {
+                                      return "Please select a Product";
+                                    }
+                                    return null;
+                                  },
+                                  showSearchBox: true,
+                                  searchFieldProps: TextFieldProps(
+                                    decoration: InputDecoration(
+                                        hintText: 'Search here..'),
+                                    cursorColor: Colors.blue,
+                                  ),
+                                )
+                              : CircularProgressIndicator.adaptive(),
                           // if (_showAdditionalFields)
 
                           SizedBox(height: 10),

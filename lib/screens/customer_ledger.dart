@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import '../componets/roundbutton.dart';
 import '../componets/text_widget.dart';
 import '../componets/textfield.dart';
+import 'package:get_storage/get_storage.dart';
+
 import '../services/service.dart';
 import 'customer_ledger_preview.dart';
 
@@ -13,6 +15,7 @@ class CustomerLedgerScreen extends StatefulWidget {
       {super.key, this.selectedCustomerName, this.selectedCustomerId});
   final String? selectedCustomerId;
   final String? selectedCustomerName;
+
 
   @override
   State<CustomerLedgerScreen> createState() => _CustomerLedgerScreenState();
@@ -23,6 +26,7 @@ class _CustomerLedgerScreenState extends State<CustomerLedgerScreen> {
   String? _pkCode;
   bool isLoading = true;
   final dateFormat = DateFormat("dd-MMM-yyyy");
+   String? usid;
 
   final startDateController = TextEditingController();
   final EndDateController = TextEditingController();
@@ -51,7 +55,7 @@ class _CustomerLedgerScreenState extends State<CustomerLedgerScreen> {
 
   Future<void> _fetchCustomer2() async {
     try {
-      final data = await ApiService.get("CustomerBal/GetBalance/");
+      final data = await ApiService.get("CustomerBal/GetBalance?usid=$usid");
       List<String> menuItems = [];
 
       for (var item in data) {
@@ -96,6 +100,9 @@ class _CustomerLedgerScreenState extends State<CustomerLedgerScreen> {
 
   @override
   void initState() {
+       usid = GetStorage().read('usid');
+    print("KKKKKKKKKKKKKKKKKKK$usid");
+
     _fetchCustomer2();
     valueFromPriviouScreen();
 
@@ -273,7 +280,7 @@ class _CustomerLedgerScreenState extends State<CustomerLedgerScreen> {
                                 ToDate: EndDateController.text,
                                 psctd: _pkCode,
                               ));
-                              _clearController();
+                              // _clearController();
                             }
                           }
                         },
